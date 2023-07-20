@@ -3,10 +3,13 @@ from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetIte
 from PyQt5.QtCore import Qt, QSize
 # Create the main window
 from UI import MyTable
+from ManageFile import File
+file = File()
 # خواندن داده‌ها از فایل csv و ذخیره آن‌ها در یک دیتافریم
-df = pd.read_csv('1402.4.csv', encoding='utf-8-sig', header=None, index_col=False)
+df = pd.read_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', header=None, index_col=False)
 print (df.shape[0],df.shape[1])
 # ایجاد یک QTableWidget
+print(file.dir_list)
 app = QApplication([])
 table = QTableWidget()
 table1 = MyTable()
@@ -29,7 +32,7 @@ def save_data(row, col):
         QMessageBox.warning(None, "اخطار", "ستون خالی است!")
         return
     df.iloc[row, col] = (table.item(row, col).text())
-    df.to_csv('1402.4.csv', encoding='utf-8-sig', index=False, header=None)
+    df.to_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
     autosize(table)
     print('Changes saved successfully!')
 
@@ -49,7 +52,7 @@ def autosize(table):
 def add_row(df,lst,table):
 
     df.loc[len(df.index)] = lst
-    df.to_csv('1402.4.csv', encoding='utf-8-sig', index=False, header=None)
+    df.to_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
     # ایجاد QTableWidget اگر قبلاً وجود نداشته باشد.
     if table.rowCount() == 0:
         table.setColumnCount(df.shape[1])
@@ -74,7 +77,7 @@ def remove_row():
         for row in sorted(rows, reverse=True):
             table.removeRow(row)
             df.drop(df.index[row], inplace=True)
-        df.to_csv('1402.4.csv', encoding='utf-8-sig', index=False, header=None)
+        df.to_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
         autosize(table)
         print('Selected rows removed successfully!')
 
