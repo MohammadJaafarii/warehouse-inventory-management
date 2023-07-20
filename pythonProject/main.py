@@ -114,7 +114,7 @@ main_layout.addLayout(layout_2)
 main_layout.addLayout(layout_3)
 widget.setLayout(main_layout)
 widget.setWindowTitle('جدول داده‌ها')
-widget.show()
+widget.showMaximized()
 
 # تنظیم اندازه سلول‌ها بر اساس محتوا
 autosize(table)
