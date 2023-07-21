@@ -41,4 +41,3 @@ class File:
             mod_time = os.path.getmtime(file_path)
             mod_time_str = datetime.datetime.fromtimestamp(mod_time).strftime('%Y-%m-%d %H:%M:%S')
             print(f"{file} was last modified on {mod_time_str}")
-            print("hi")
