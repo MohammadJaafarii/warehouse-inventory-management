@@ -16,6 +16,7 @@ class MyTable:
         for i in range(df.shape[0]):
             for j in range(df.shape[1]):
                 table_item = QTableWidgetItem(str(df.iloc[i, j]))
+                table_item.setTextAlignment(Qt.AlignCenter)
                 table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.table.setItem(i, j, table_item)
                 self.autosize()
@@ -32,6 +33,7 @@ class MyTable:
         for j in range(len(df.columns)):
             str1 = str(df.iloc[row_count, j])
             table_item = QTableWidgetItem(str1)
+            table_item.setTextAlignment(Qt.AlignCenter)
             table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             self.table.setItem(row_count, j, table_item)
         self.table.scrollToItem(self.table.item(row_count, 0))

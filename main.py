@@ -1,15 +1,14 @@
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QHeaderView,QLabel
+from PyQt5.QtWidgets import QDialog, QApplication, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QHeaderView,QLabel
 from PyQt5.QtCore import Qt, QSize
 # Create the main window
 from UI import MyTable
 from ManageFile import File
 file = File()
 # خواندن داده‌ها از فایل csv و ذخیره آن‌ها در یک دیتافریم
-df = pd.read_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', header=None, index_col=False)
-print (df.shape[0],df.shape[1])
+df = pd.read_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', header=None, index_col=False)
 # ایجاد یک QTableWidget
-print(file.dir_list)
+print(file.display_list)
 app = QApplication([])
 table = QTableWidget()
 table1 = MyTable()
@@ -25,14 +24,13 @@ for i in range(df.shape[0]):
         if j == 0 or i == 0 or j > 7: # For the first row and column, editing is disabled
             table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         table.setItem(i, j, table_item)
-
 # تعریف تابعی برای ذخیره تغییرات در دیتافریم و فایل csv
 def save_data(row, col):
     if table.item(row, col) is None or table.item(row, col).text().strip() == '':
         QMessageBox.warning(None, "اخطار", "ستون خالی است!")
         return
     df.iloc[row, col] = (table.item(row, col).text())
-    df.to_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
+    df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
     autosize(table)
     print('Changes saved successfully!')
 
@@ -52,7 +50,7 @@ def autosize(table):
 def add_row(df,lst,table):
 
     df.loc[len(df.index)] = lst
-    df.to_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
+    df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
     # ایجاد QTableWidget اگر قبلاً وجود نداشته باشد.
     if table.rowCount() == 0:
         table.setColumnCount(df.shape[1])
@@ -77,7 +75,7 @@ def remove_row():
         for row in sorted(rows, reverse=True):
             table.removeRow(row)
             df.drop(df.index[row], inplace=True)
-        df.to_csv(rf'{file.information_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
+        df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
         autosize(table)
         print('Selected rows removed successfully!')
 
@@ -90,9 +88,21 @@ lst = ["دوشنبه-1407.43.12",178,
                    954377,
             "اردی.40",
                    "F"]
-
+def test(file,table1,str):
+    table1.delete_table()
+    if str == "N":
+        df = pd.read_csv(rf'{file.display_data_path}\{file.get_next_file()}', encoding='utf-8-sig', header=None,
+                         index_col=False)
+    else :
+        df = pd.read_csv(rf'{file.display_data_path}\{file.get_previous_file()}', encoding='utf-8-sig', header=None,
+                         index_col=False)
+    table1.create_table(df)
 # تعریف دکمه‌های اضافه کردن سطر و حذف سطر
 add_button = QPushButton('افزودن سطر')
+next = QPushButton('Next')
+previous = QPushButton('Previous')
+previous.clicked.connect(lambda :test(file,table1,'P'))
+next.clicked.connect(lambda :test(file,table1,"N"))
 incrase_size_of_font = QPushButton('+')
 decrease_size_of_font = QPushButton('-')
 incrase_size_of_font.clicked.connect(lambda : table1.increase_font())
@@ -107,6 +117,8 @@ layout_3 = QVBoxLayout()
 layout_3.addWidget(table1.table)
 main_layout= QVBoxLayout()
 layout.addWidget(incrase_size_of_font)
+layout.addWidget(next)
+layout.addWidget(previous)
 layout.addWidget(decrease_size_of_font)
 layout.addWidget(table)
 layout_2.addWidget(add_button)
