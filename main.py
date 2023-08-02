@@ -3,24 +3,26 @@ from PyQt5.QtWidgets import QDialog, QApplication, QWidget, QTableWidget, QTable
 from PyQt5.QtCore import Qt, QSize
 # Create the main window
 from UI import MyTable
-from ManageFile import File
-file = File()
+from ManageFile import FileClass
+from Data import DataClass
+data = DataClass()
+file = FileClass()
 # خواندن داده‌ها از فایل csv و ذخیره آن‌ها در یک دیتافریم
-df = pd.read_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', header=None, index_col=False)
+data.read_display_data(file.display_data_path,file.current_file())
 # ایجاد یک QTableWidget
 print(file.display_list)
 app = QApplication([])
 table = QTableWidget()
 table1 = MyTable()
-table1.create_table(df)
+table1.create_table(data.dp_df)
 # تعیین تعداد سطرها و ستون‌های جدول به اندازه تعداد سطرها و ستون‌های دیتافریم
-table.setRowCount(df.shape[0])
-table.setColumnCount(df.shape[1])
+table.setRowCount(data.dp_df.shape[0])
+table.setColumnCount(data.dp_df.shape[1])
 
 # قرار دادن داده‌های دیتافریم در جدول
-for i in range(df.shape[0]):
-    for j in range(df.shape[1]):
-        table_item = QTableWidgetItem(str(df.iloc[i, j]))
+for i in range(data.dp_df.shape[0]):
+    for j in range(data.dp_df.shape[1]):
+        table_item = QTableWidgetItem(str(data.dp_df.iloc[i, j]))
         if j == 0 or i == 0 or j > 7: # For the first row and column, editing is disabled
             table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         table.setItem(i, j, table_item)
@@ -29,8 +31,8 @@ def save_data(row, col):
     if table.item(row, col) is None or table.item(row, col).text().strip() == '':
         QMessageBox.warning(None, "اخطار", "ستون خالی است!")
         return
-    df.iloc[row, col] = (table.item(row, col).text())
-    df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
+    data.dp_df.iloc[row, col] = (table.item(row, col).text())
+    data.write_display_data(file.display_data_path,file.current_file())
     autosize(table)
     print('Changes saved successfully!')
 
@@ -47,19 +49,18 @@ def autosize(table):
         if width > 0:
             table.setColumnWidth(col, width + 20)
 
-def add_row(df,lst,table):
-
-    df.loc[len(df.index)] = lst
-    df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
+def add_row(data,lst,table):
+    data.dp_df.loc[len(data.dp_df.index)] = lst
+    data.write_display_data(file.display_data_path,file.current_file())
     # ایجاد QTableWidget اگر قبلاً وجود نداشته باشد.
     if table.rowCount() == 0:
-        table.setColumnCount(df.shape[1])
-        table.setHorizontalHeaderLabels(df.columns.tolist())
+        table.setColumnCount(data.dp_df.shape[1])
+        table.setHorizontalHeaderLabels(data.dp_df.columns.tolist())
     # اضافه کردن ردیف جدید به QTableWidget
     row_count = table.rowCount()
     table.insertRow(row_count)
-    for j in range(len(df.columns)):
-        str1 = str(df.iloc[row_count, j])
+    for j in range(len(data.dp_df.columns)):
+        str1 = str(data.dp_df.iloc[row_count, j])
         table_item =QTableWidgetItem(str1)
         if j == 0 or j >7 or row_count == 1:
             table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
@@ -74,8 +75,8 @@ def remove_row():
     if reply == QMessageBox.Yes:
         for row in sorted(rows, reverse=True):
             table.removeRow(row)
-            df.drop(df.index[row], inplace=True)
-        df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
+            data.dp_df.drop(data.dp_df.index[row], inplace=True)
+        data.dp_df.to_csv(rf'{file.display_data_path}\{file.current_file()}', encoding='utf-8-sig', index=False, header=None)
         autosize(table)
         print('Selected rows removed successfully!')
 
@@ -88,6 +89,9 @@ lst = ["دوشنبه-1407.43.12",178,
                    954377,
             "اردی.40",
                    "F"]
+# search_string = input ("search string: \n")
+# result = df[df.iloc[:, 0].str.contains(search_string)]
+# print (result)
 def test(file,table1,str):
     table1.delete_table()
     if str == "N":
@@ -107,7 +111,7 @@ incrase_size_of_font = QPushButton('+')
 decrease_size_of_font = QPushButton('-')
 incrase_size_of_font.clicked.connect(lambda : table1.increase_font())
 decrease_size_of_font.clicked.connect(lambda :table1.decrease_font())
-widget = add_button.clicked.connect(lambda :add_row(df,lst,table))
+widget = add_button.clicked.connect(lambda :add_row(data,lst,table))
 remove_button = QPushButton('حذف سطر انتخاب شده')
 remove_button.clicked.connect(remove_row)
 # قرار دادن جدول و دکمه‌ها در ویجت

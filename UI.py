@@ -1,17 +1,18 @@
 from pandas import DataFrame
 from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QHeaderView
-from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QHeaderView,QFontComboBox
+from PyQt5.QtWidgets import QDesktopWidget, QApplication, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QHeaderView,QFontComboBox
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont
 class MyTable:
     def __init__(self):
         self.table = QTableWidget()
-        self.font = 12
+        self.fontsize = 12
+        self.fontname = "Arial"
     def create_table(self,df):
         #number of rows and columns for putting data from data frame in table
         self.table.setRowCount(df.shape[0])
         self.table.setColumnCount(df.shape[1])
-        font = QFont('Arial', self.font)
+        font = QFont(self.fontname, self.fontsize)
         self.table.setFont(font)
         for i in range(df.shape[0]):
             for j in range(df.shape[1]):
@@ -48,20 +49,36 @@ class MyTable:
             if width > 0:
                 self.table.setColumnWidth(col, width + 20)
     def increase_font(self):
-        self.font += 1
-        font = QFont('Arial', self.font)
+        self.fontsize += 1
+        font = QFont(self.fontname, self.fontsize)
         self.table.setFont(font)
         self.autosize()
     def decrease_font(self):
-        if self.font >0 :
-            self.font -= 1
-            font = QFont('Arial', self.font)
+        if self.fontsize >0 :
+            self.fontsize -= 1
+            font = QFont(self.fontname, self.fontsize)
             self.table.setFont(font)
             self.autosize()
     def delete_table(self):
         self.table.clearContents()
         self.table.setRowCount(0)
         self.table.setColumnCount(0)
+    def create_msgbox(self,str,type):
+        msg = QMessageBox()
+        if type == "warning":
+            msg.setIcon(QMessageBox.Warning)
+        elif type == "information":
+            msg.setIcon(QMessageBox.Information)
+        # set the message text and font size
+        msg.setText(str)
+        msg.setFont(QFont(self.fontname, self.fontsize))
+        # center the message box on the screen
+        msg_rect = msg.frameGeometry()
+        screen_center = QDesktopWidget().availableGeometry().center()
+        msg_rect.moveCenter(screen_center)
+        msg.move(msg_rect.topLeft())
+        msg.exec_()
+
 class AddButton:
     def __init__(self):
         self.addbutton = QPushButton("افزودن")

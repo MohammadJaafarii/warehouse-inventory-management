@@ -1,6 +1,5 @@
 import os
-import datetime
-class File:
+class FileClass:
     def __init__(self):
         self.create_folders()
         self.display_list = []
@@ -8,9 +7,8 @@ class File:
         self.sort_files_according_to_Date()
         self.index_of_current_file = len(self.display_list) - 1
     def create_folders (self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = os.getcwd()
         self.Database_path = os.path.join(base_dir, "Database")
-
         if not os.path.exists(self.Database_path):
             os.makedirs(self.Database_path)
         self.pure_data_path = os.path.join(self.Database_path, "Pure Data")
@@ -19,6 +17,7 @@ class File:
         self.display_data_path = os.path.join(self.Database_path, "Display Data")
         if not os.path.exists(self.display_data_path):
             os.makedirs(self.display_data_path)
+
     def current_file(self):
         if self.index_of_current_file < 0 :
             print("Error")
@@ -32,10 +31,6 @@ class File:
             return False
     def getting_the_names_of_all_files(self , path):
         self.display_list = os.listdir(path)
-    def get_path(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        data_dir = os.path.join(base_dir, 'information')
-        return data_dir
     def get_next_file(self):
         if self.index_of_current_file == -1:
             #show suitable message
@@ -55,3 +50,4 @@ class File:
         return self.display_list[self.index_of_current_file]
     def sort_files_according_to_Date(self):
         self.display_list = sorted(self.display_list, key=lambda x: os.path.getmtime(os.path.join(self.display_data_path, x)))
+
